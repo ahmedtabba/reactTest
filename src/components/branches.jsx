@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import BranchesTable from "./branchesTable";
 import Pagination from "./common/pagination";
 import { getBranches, deleteBranch } from "../services/branchServices";
@@ -23,17 +23,24 @@ class Branches extends Component {
   }
 
   handleDelete = async branch => {
-    const originalBranches = this.state.branches;
-    const branches = originalBranches.filter(b => b.id !== branch.id);
-    this.setState({ branches });
+    if (window.confirm("Are you sure you wish to delete this branch?")) {
+      const originalBranches = this.state.branches;
+      const branches = originalBranches.filter(b => b.id !== branch.id);
+      this.setState({ branches });
+      console.log("delete Called");
 
-    try {
-      await deleteBranch(branch.id);
-    } catch (ex) {
-      if (ex.response && ex.response.status === 404)
-        toast.error("This branch has already been deleted.");
+      try {
+        await deleteBranch(branch.id);
+      } catch (ex) {
+        if (ex.response && ex.response.status === 404)
+          toast.error("This branch has already been deleted.");
 
-      this.setState({ branches: originalBranches });
+        if (ex.response && ex.response.status === 400)
+          toast.error(ex.response.data.message);
+
+        // window.alert(ex.response.data.message);
+        this.setState({ branches: originalBranches });
+      }
     }
   };
 
@@ -83,6 +90,7 @@ class Branches extends Component {
 
     return (
       <div className="row">
+        <ToastContainer position="top-center" />
         <div className="col">
           {user && (
             <Link

@@ -62,11 +62,11 @@ class BranchForm extends Form {
     return (
       <div>
         <h1>Branch Form</h1>
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={this.handelSubmit}>
           {this.renderInput("name", "Name")}
           {this.renderInput("location", "Location")}
           {this.renderInput("description", "Description")}
-          {this.renderButton("Save")}
+          {this.renderSubmitButton("Save")}
         </form>
       </div>
     );

@@ -1,12 +1,17 @@
 import http from "./httpService";
 import { apiUrl } from "../config.json";
 
-const apiEndpoint = apiUrl + "/users";
+const apiEndpoint = apiUrl + "/Account/Register";
 
 export function register(user) {
+  console.log(user);
+
   return http.post(apiEndpoint, {
-    email: user.username,
+    email: user.email,
     password: user.password,
-    name: user.name
+    confirmPassword: user.confirmPassword,
+    fullname: user.fullname,
+    branchId: user.branchId,
+    roleName: user.roleName
   });
 }

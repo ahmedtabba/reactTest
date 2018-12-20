@@ -3,31 +3,53 @@ import Joi from "joi-browser";
 import Form from "./common/form";
 import * as userService from "../services/userService";
 import auth from "../services/authService";
+import { getBranches } from "../services/branchServices";
+import Roles from "../models/roles";
 
 class RegisterForm extends Form {
   state = {
-    data: { username: "", password: "", name: "" },
+    data: {
+      fullname: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      branchId: "",
+      roleName: ""
+    },
+    branches: [],
     errors: {}
   };
 
   schema = {
-    username: Joi.string()
+    email: Joi.string()
       .required()
       .email()
-      .label("Username"),
+      .label("Email"),
     password: Joi.string()
       .required()
       .min(5)
       .label("Password"),
-    name: Joi.string()
+    confirmPassword: Joi.string()
       .required()
-      .label("Name")
+      .min(5)
+      .label("Confirm Password"),
+    fullname: Joi.string()
+      .required()
+      .label("Username"),
+    branchId: Joi.required().label("Branch"),
+    roleName: Joi.required().label("Role Name")
   };
 
   doSubmit = async () => {
     try {
+      console.log(this.state.data);
+      console.log("555555");
+
       const response = await userService.register(this.state.data);
-      auth.loginWithJwt(response.headers["x-auth-token"]);
+      console.log("responser", response);
+      auth.login(this.state.data.email, this.state.data.password);
+
+      // auth.loginWithJwt(response.headers["x-auth-token"]);
       window.location = "/";
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {
@@ -38,15 +60,31 @@ class RegisterForm extends Form {
     }
   };
 
+  async componentDidMount() {
+    console.log(Roles);
+
+    const { data: branches } = await getBranches();
+    this.setState({ branches });
+  }
+
   render() {
     return (
       <div>
         <h1>Register</h1>
-        <form onSubmit={this.handleSubmit}>
-          {this.renderInput("username", "Username")}
+        <form onSubmit={this.handelSubmit}>
+          {this.renderInput("email", "Email", "email")}
           {this.renderInput("password", "Password", "password")}
-          {this.renderInput("name", "Name")}
-          {this.renderButton("Register")}
+          {this.renderInput("confirmPassword", "Confirm Password", "password")}
+          {this.renderInput("fullname", "Full Name", "text")}
+          {this.renderSelect(
+            "branchId",
+            "Branch",
+            this.state.branches,
+            "id",
+            "name"
+          )}
+          {this.renderSelect("roleName", "Role Name", Roles, "name", "name")}
+          {this.renderSubmitButton("Register")}
         </form>
       </div>
     );
