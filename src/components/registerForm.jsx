@@ -36,20 +36,22 @@ class RegisterForm extends Form {
     fullname: Joi.string()
       .required()
       .label("Username"),
-    branchId: Joi.required().label("Branch"),
-    roleName: Joi.required().label("Role Name")
+    branchId: Joi.string()
+      .required()
+      .label("Branch"),
+    roleName: Joi.string()
+      .required()
+      .label("Role Name")
   };
 
   doSubmit = async () => {
     try {
       console.log(this.state.data);
-      console.log("555555");
 
       const response = await userService.register(this.state.data);
       console.log("responser", response);
       auth.login(this.state.data.email, this.state.data.password);
 
-      // auth.loginWithJwt(response.headers["x-auth-token"]);
       window.location = "/";
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {
@@ -84,7 +86,7 @@ class RegisterForm extends Form {
             "name"
           )}
           {this.renderSelect("roleName", "Role Name", Roles, "name", "name")}
-          {this.renderSubmitButton("Register")}
+          {this.renderButton("Register")}
         </form>
       </div>
     );

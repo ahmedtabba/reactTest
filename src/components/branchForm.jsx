@@ -66,7 +66,7 @@ class BranchForm extends Form {
           {this.renderInput("name", "Name")}
           {this.renderInput("location", "Location")}
           {this.renderInput("description", "Description")}
-          {this.renderSubmitButton("Save")}
+          {this.renderButton("Save")}
         </form>
       </div>
     );
