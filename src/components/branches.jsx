@@ -27,7 +27,6 @@ class Branches extends Component {
       const originalBranches = this.state.branches;
       const branches = originalBranches.filter(b => b.id !== branch.id);
       this.setState({ branches });
-      console.log("delete Called");
 
       try {
         await deleteBranch(branch.id);

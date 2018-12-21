@@ -25,6 +25,11 @@ const NavBar = ({ user }) => {
               Branches
             </NavLink>
           </li>
+          <li className="nav-item ">
+            <NavLink className="nav-item nav-link" to="/countries">
+              Countries
+            </NavLink>
+          </li>
 
           {!user && (
             <React.Fragment>

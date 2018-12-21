@@ -11,6 +11,8 @@ import auth from "./services/authService";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import BranchForm from "./components/branchForm";
+import Countries from "./components/countries";
+import CountryForm from "./components/countryForm";
 
 class App extends Component {
   state = {};
@@ -33,9 +35,14 @@ class App extends Component {
             <Route path="/login" component={LoginForm} />
             <Route path="/logout" component={Logout} />
             <ProtectedRoute path="/branches/:id" component={BranchForm} />
+            <ProtectedRoute path="/countries/:id" component={CountryForm} />
             <Route
               path="/branches"
               render={props => <Branches {...props} user={this.state.user} />}
+            />
+            <Route
+              path="/countries"
+              render={props => <Countries {...props} user={this.state.user} />}
             />
             <Route path="/not-found" component={NotFound} />
             <Redirect from="/" exact to="/branches" />
