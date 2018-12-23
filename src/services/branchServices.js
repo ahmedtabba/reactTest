@@ -7,7 +7,7 @@ function branchUrl(id) {
   return `${apiEndpoint}/${id}`;
 }
 
-export function getBranches() {
+export function getBranchesApi() {
   return http.get(apiEndpoint);
 }
 
@@ -24,6 +24,6 @@ export function saveBranch(branch) {
   return http.post(apiEndpoint, branch);
 }
 
-export function deleteBranch(branchId) {
+export function deleteBranchApi(branchId) {
   return http.delete(branchUrl(branchId));
 }

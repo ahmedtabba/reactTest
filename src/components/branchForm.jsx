@@ -1,7 +1,11 @@
 import React from "react";
 import Joi from "joi-browser";
 import Form from "./common/form";
-import { getBranch, saveBranch } from "../services/branchServices";
+import { createBranches, updateBranch } from "../actions/branchActions";
+import { connect } from "react-redux";
+import { getBranch } from "../services/branchServices";
+import PropTypes from "prop-types";
+import { withRouter } from "react-router";
 
 class BranchForm extends Form {
   state = {
@@ -52,11 +56,13 @@ class BranchForm extends Form {
     };
   }
 
-  doSubmit = async () => {
-    await saveBranch(this.state.data);
+  async doSubmit() {
+    const branchId = this.props.computedMatch.params.id;
+    if (branchId === "new") await this.props.createBranches(this.state.data);
+    else await this.props.updateBranch(this.state.data);
 
     this.props.history.push("/branches");
-  };
+  }
 
   render() {
     return (
@@ -73,4 +79,13 @@ class BranchForm extends Form {
   }
 }
 
-export default BranchForm;
+BranchForm.propTypes = {
+  createBranches: PropTypes.func.isRequired
+};
+
+export default withRouter(
+  connect(
+    null,
+    { createBranches, updateBranch }
+  )(BranchForm)
+);

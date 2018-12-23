@@ -1,7 +1,10 @@
 import React from "react";
 import Joi from "joi-browser";
 import Form from "./common/form";
-import { saveCountry, getCountry } from "../services/countryServies";
+import { getCountry } from "../services/countryServies";
+import { connect } from "react-redux";
+import { createCountry, updateCountry } from "../actions/countryActions";
+import { withRouter } from "react-router";
 
 class CountryForm extends Form {
   state = {
@@ -42,10 +45,13 @@ class CountryForm extends Form {
     this.populateCountry();
   }
 
-  doSubmit = async () => {
-    await saveCountry(this.state.data);
+  async doSubmit() {
+    const countryId = this.props.match.params.id;
+    if (countryId === "new") await this.props.createCountry(this.state.data);
+    else await this.props.updateCountry(this.state.data);
+
     this.props.history.push("/countries");
-  };
+  }
 
   render() {
     return (
@@ -60,4 +66,9 @@ class CountryForm extends Form {
   }
 }
 
-export default CountryForm;
+export default withRouter(
+  connect(
+    null,
+    { createCountry, updateCountry }
+  )(CountryForm)
+);

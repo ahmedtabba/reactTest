@@ -1,45 +1,32 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import BranchesTable from "./branchesTable";
 import Pagination from "./common/pagination";
-import { getBranches, deleteBranch } from "../services/branchServices";
 import { paginate } from "../utils/paginate";
 import _ from "lodash";
 import SearchBox from "./searchBox";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import { getBranches, deleteBranch } from "../actions/branchActions";
+import { authUserAction } from "../actions/authActions";
 
 class Branches extends Component {
   state = {
-    branches: [],
     currentPage: 1,
     pageSize: 4,
     searchQuery: "",
     sortColumn: { path: "name", order: "asc" }
   };
 
-  async componentDidMount() {
-    const { data: branches } = await getBranches();
-    this.setState({ branches });
+  componentWillMount() {
+    this.props.authUserAction();
+    this.props.getBranches();
   }
 
-  handleDelete = async branch => {
-    if (window.confirm("Are you sure you wish to delete this branch?")) {
-      const originalBranches = this.state.branches;
-      const branches = originalBranches.filter(b => b.id !== branch.id);
-      this.setState({ branches });
-
-      try {
-        await deleteBranch(branch.id);
-      } catch (ex) {
-        if (ex.response && ex.response.status === 404)
-          toast.error("This branch has already been deleted.");
-
-        if (ex.response && ex.response.status === 400)
-          toast.error(ex.response.data.message);
-
-        // window.alert(ex.response.data.message);
-        this.setState({ branches: originalBranches });
-      }
+  handleDelete = branch => {
+    if (window.confirm(`Are you sure you want to DELETE ${branch.name} ?`)) {
+      this.props.deleteBranch(branch.id);
     }
   };
 
@@ -56,14 +43,9 @@ class Branches extends Component {
   };
 
   getPagedData = () => {
-    const {
-      pageSize,
-      currentPage,
-      sortColumn,
+    const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
 
-      searchQuery,
-      branches: allBranches
-    } = this.state;
+    const allBranches = this.props.branches;
 
     let filtered = allBranches;
     if (searchQuery)
@@ -79,7 +61,7 @@ class Branches extends Component {
   };
 
   render() {
-    const { length: count } = this.state.branches;
+    const { length: count } = this.props.branches;
     const { pageSize, currentPage, sortColumn, searchQuery } = this.state;
     const { user } = this.props;
 
@@ -120,4 +102,20 @@ class Branches extends Component {
   }
 }
 
-export default Branches;
+Branches.propTypes = {
+  getBranches: PropTypes.func.isRequired,
+  branches: PropTypes.array.isRequired,
+  deleteBranch: PropTypes.func.isRequired,
+  user: PropTypes.object,
+  authUserAction: PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => ({
+  branches: state.branches.items,
+  user: state.auth.user
+});
+
+export default connect(
+  mapStateToProps,
+  { getBranches, deleteBranch, authUserAction }
+)(Branches);

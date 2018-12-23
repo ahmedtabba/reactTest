@@ -27,6 +27,8 @@ export function loginWithJwt(jwt) {
 
 export function logout() {
   localStorage.removeItem(tokenKey);
+  localStorage.removeItem(fullNameKey);
+  localStorage.removeItem(userId);
 }
 
 export async function getCurrentUser() {
@@ -35,7 +37,9 @@ export async function getCurrentUser() {
 
     if (id === null) return null;
 
-    const result = await http.get(apiEndpoint + id);
+    const result = await http.get(apiEndpoint + id, {
+      headers: { Authorization: "Bearer " + getJwt() }
+    });
 
     const user = result.data;
 

@@ -3,8 +3,10 @@ import Joi from "joi-browser";
 import Form from "./common/form";
 import * as userService from "../services/userService";
 import auth from "../services/authService";
-import { getBranches } from "../services/branchServices";
 import Roles from "../models/roles";
+import { connect } from "react-redux";
+import { getBranches } from "../actions/branchActions";
+import PropTypes from "prop-types";
 
 class RegisterForm extends Form {
   state = {
@@ -16,7 +18,6 @@ class RegisterForm extends Form {
       branchId: "",
       roleName: ""
     },
-    branches: [],
     errors: {}
   };
 
@@ -46,10 +47,7 @@ class RegisterForm extends Form {
 
   doSubmit = async () => {
     try {
-      console.log(this.state.data);
-
-      const response = await userService.register(this.state.data);
-      console.log("responser", response);
+      await userService.register(this.state.data);
       auth.login(this.state.data.email, this.state.data.password);
 
       window.location = "/";
@@ -62,14 +60,13 @@ class RegisterForm extends Form {
     }
   };
 
-  async componentDidMount() {
-    console.log(Roles);
-
-    const { data: branches } = await getBranches();
-    this.setState({ branches });
+  async componentWillMount() {
+    this.props.getBranches();
   }
 
   render() {
+    const branches = this.props.branches;
+
     return (
       <div>
         <h1>Register</h1>
@@ -78,13 +75,7 @@ class RegisterForm extends Form {
           {this.renderInput("password", "Password", "password")}
           {this.renderInput("confirmPassword", "Confirm Password", "password")}
           {this.renderInput("fullname", "Full Name", "text")}
-          {this.renderSelect(
-            "branchId",
-            "Branch",
-            this.state.branches,
-            "id",
-            "name"
-          )}
+          {this.renderSelect("branchId", "Branch", branches, "id", "name")}
           {this.renderSelect("roleName", "Role Name", Roles, "name", "name")}
           {this.renderButton("Register")}
         </form>
@@ -93,4 +84,16 @@ class RegisterForm extends Form {
   }
 }
 
-export default RegisterForm;
+RegisterForm.propTypes = {
+  getBranches: PropTypes.func.isRequired,
+  branches: PropTypes.array.isRequired
+};
+
+const mapStateToProps = state => ({
+  branches: state.branches.items
+});
+
+export default connect(
+  mapStateToProps,
+  { getBranches }
+)(RegisterForm);

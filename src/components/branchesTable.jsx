@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import auth from "../services/authService";
 import { Link } from "react-router-dom";
 import Table from "./common/table";
+import { authUserAction } from "../actions/authActions";
+import { connect } from "react-redux";
 
 class BranchesTable extends Component {
   columns = [
@@ -28,10 +29,10 @@ class BranchesTable extends Component {
     )
   };
 
-  constructor() {
-    super();
-    const user = auth.getCurrentUser();
-    if (user /* && user.isAdmin*/) this.columns.push(this.deleteColumn);
+  componentWillMount() {
+    this.props.authUserAction();
+    if (this.props.user /* && user.isAdmin*/)
+      this.columns.push(this.deleteColumn);
   }
 
   render() {
@@ -47,5 +48,11 @@ class BranchesTable extends Component {
     );
   }
 }
+const mapStateToProps = state => ({
+  user: state.auth.user
+});
 
-export default BranchesTable;
+export default connect(
+  mapStateToProps,
+  { authUserAction }
+)(BranchesTable);

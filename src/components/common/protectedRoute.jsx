@@ -1,25 +1,41 @@
-import React from "react";
+import React, { Component } from "react";
 import { Route, Redirect } from "react-router-dom";
-import auth from "../../services/authService";
+import { connect } from "react-redux";
+import { authUserAction } from "../../actions/authActions";
 
-const ProtectedRoute = ({ path, component: Component, render, ...rest }) => {
-  return (
-    <Route
-      {...rest}
-      render={props => {
-        if (!auth.getCurrentUser())
-          return (
-            <Redirect
-              to={{
-                pathname: "/login",
-                state: { from: props.location }
-              }}
-            />
-          );
-        return Component ? <Component {...props} /> : render(props);
-      }}
-    />
-  );
-};
+class ProtectedRoute extends Component {
+  componentDidMount() {
+    this.props.authUserAction();
+  }
 
-export default ProtectedRoute;
+  render() {
+    const { path, component: Component, render, ...rest } = this.props;
+
+    return (
+      <Route
+        {...rest}
+        render={() => {
+          if (!this.props.user)
+            return (
+              <Redirect
+                to={{
+                  pathname: "/login",
+                  state: { from: this.props.location }
+                }}
+              />
+            );
+          return Component ? <Component {...this.props} /> : render(this.props);
+        }}
+      />
+    );
+  }
+}
+
+const mapStateToProps = state => ({
+  user: state.auth.user
+});
+
+export default connect(
+  mapStateToProps,
+  { authUserAction }
+)(ProtectedRoute);

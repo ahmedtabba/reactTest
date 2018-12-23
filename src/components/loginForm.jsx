@@ -3,6 +3,8 @@ import { Redirect } from "react-router-dom";
 import Joi from "joi-browser";
 import Form from "./common/form";
 import auth from "../services/authService";
+import { connect } from "react-redux";
+import { authUserAction } from "../actions/authActions";
 
 class LoginForm extends Form {
   state = {
@@ -23,8 +25,8 @@ class LoginForm extends Form {
     try {
       const { data } = this.state;
       await auth.login(data.username, data.password);
-      console.log("submit");
 
+      this.props.authUserAction();
       const { state } = this.props.location;
       window.location = state ? state.from.pathname : "/";
     } catch (ex) {
@@ -60,4 +62,7 @@ class LoginForm extends Form {
   }
 }
 
-export default LoginForm;
+export default connect(
+  null,
+  { authUserAction }
+)(LoginForm);
